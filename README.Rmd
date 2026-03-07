@@ -16,13 +16,14 @@ knitr::opts_chunk$set(
 ```
 
 <!-- badges: start -->
-[![CRAN](https://www.r-pkg.org/badges/version/cefiro)](https://cran.r-project.org/package=FortranwithR)
 [![R-CMD-check](https://github.com/prcwiek/FortranwithR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/prcwiek/FortranwithR/actions/workflows/R-CMD-check.yaml)
 [![](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
 <!-- badges: end -->
 
 ### Tutorial
 Back to the future: How to use Fortran with R these days?
+
+FortranwithR is an R package for learning how use Fortran with R.
 
 ### Installation
 

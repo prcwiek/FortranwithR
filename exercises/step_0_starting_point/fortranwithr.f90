@@ -8,7 +8,7 @@ module fortranwithr
 contains
 
 !**********************************************************
-!* Hello World!                                  *
+!* Hello UseR! 2026                                       *
 !**********************************************************
   subroutine hello_user() bind(C, name = "hello_user_c")
 

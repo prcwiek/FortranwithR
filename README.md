@@ -5,7 +5,6 @@
 
 <!-- badges: start -->
 
-[![CRAN](https://www.r-pkg.org/badges/version/cefiro)](https://cran.r-project.org/package=FortranwithR)
 [![R-CMD-check](https://github.com/prcwiek/FortranwithR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/prcwiek/FortranwithR/actions/workflows/R-CMD-check.yaml)
 [![](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
 <!-- badges: end -->

@@ -19,6 +19,10 @@ knitr::opts_chunk$set(
 )
 ```
 
+```{r, echo=FALSE}
+library(FortranwithR)
+```
+
 
 # Package FortranwithR
 
@@ -31,8 +35,7 @@ needs.
 ## Step 0 or the starting point
 First, we will take a look at the template of our R package to get the first idea how the things work.  
 
-The first function in our package, *hello_user.R* is as simple as possible. We don't pass any arguments and we don't
-process the output.
+The first function in our package, *hello_user.R* is as simple as possible. We don't pass any arguments and we don't process the output.
 
 ```{r 'First function', eval=FALSE}
 hello_user <- function() {
@@ -81,7 +84,7 @@ module fortranwithr
 contains
 
 !**********************************************************
-!* Hello UseR!                                  *
+!* Hello UseR! 2026                                       *
 !**********************************************************
   subroutine hello_user() bind(C, name = "hello_user_c")
 
@@ -92,7 +95,168 @@ contains
 end module fortranwithr
 
 ```
-In fact the Fortran function does nothing now. We can uncomment the line print and try to build the package. It will work, but it will also generate warnings as creating the output is forbidden.
+Right now, the Fortran function doesn't do anything. If you uncomment the print statement, the package will still build, but you'll get warnings since writing to the console isn't allowed here.
+
+## Step 1: Simple input and output
+Let's see how can we pass arguments and get results using Fortran function. The example is trivial, but
+it is just the beginning.  
+First, we create a new package function in R with one input argument. However we will have to pass two
+arguments to the .C function, to provide an input variable and receibe an output value.
+```{r, my_sqrt, eval=FALSE}
+#' My sqrt function
+#'
+#' @description
+#' Step 1: Simple input and output
+#' 
+#' @param value numeric;  
+#'
+#' @return resp; a list with results
+#'
+#' @export
+my_sqrt <- function(value) {
+
+  resp <- .C("my_sqrt_c",
+             value = as.numeric(value),
+             result = as.numeric(value))
+  
+  resp$result
+  
+}
+
+```
+We have to register it in our C file
+```{c, eval=FALSE}
+#include <R.h>
+#include <Rinternals.h>
+#include <R_ext/Rdynload.h>
+
+extern void hello_user_c();
+
+extern void my_sqrt_c(double *value,
+                      double *result);
+
+
+static const R_CMethodDef cMethods[] = {
+  {"hello_user_c", (DL_FUNC) &hello_user_c, 0},
+  {"my_sqrt_c", (DL_FUNC) &my_sqrt_c, 2},
+  {NULL, NULL, 0}
+};
+
+void R_init_FortranwithR(DllInfo *dll)
+{
+  R_registerRoutines(dll, cMethods, NULL, NULL, NULL);
+  R_useDynamicSymbols(dll, FALSE);
+}
+
+```
+And now we can write a function in Fortran. We will disgnuish between the input argument
+we do not want to change **intent(in)** and the argument we want to change **intent(in out)**. We will use 
+C variable types from the Fotran library *iso_c_binding* instead of standard Fortran variables.
+```{fortran, eval=FALSE}
+!**********************************************************
+!* my_sqrt                                                *
+!**********************************************************
+  subroutine my_sqrt(value, result) bind(C, name = "my_sqrt_c")
+
+      real(c_double), intent(in)        :: value
+      real(c_double), intent(in out)    :: result
+
+      result = sqrt(value)
+
+  end subroutine my_sqrt
+```
+Let's see how it works.
+```{r}
+my_sqrt(4)
+```
+```{r}
+my_sqrt(703)
+```
+
+## Wind measurement and wind shear
+A short stop now as I would like to introduce you to the problem we want to solve. 
+
+Let's talk about predicting wind conditions. Beforestarting a wind farms constructions,
+investors want to knowthe future Annual Energy Production (AEP). The calculations are based on
+costly wind resource measurements. We collect years of high-resolution data from measurement masts, typically recording 10-minute averages of wind speed, direction, pressure, and temperature.
+It generates a massive volume of data.
+
+However, we face a height gap. While measurement masts reach heights from 120 m to 160 m, today’s 
+turbines often have hub heights around 180 m. The challenge lies in accurately predicting
+wind behavior in that 'unmeasured' space above the mast.
+
+### Wind profile
+Wind speed changes with height and the wind profile is usually described by a power law:
+$$u(z) = u(z_{ref}) \cdot\left(\frac{z}{z_{ref}}\right)^\alpha$$
+where $u(z_{ref})$ is a wind speed at the reference height $z_{ref}$, $u(z)$ is a wind speed at
+the height z and $\alpha$ is the power law exponent also called the shear coefficient.  
+
+Example of three different wind profiles below.  
+```{r wind_profiles, echo=FALSE, fig.show='hold', fig.width=6, fig.height=6}
+v <- function(vref, z, zref, a ) {
+  v <- vref * (z/zref)^a
+}
+
+df <- data.frame(h = seq(20, 200, 10))
+df$v1<- v(5, df$h, 20, 0.10)
+df$v2<- v(5, df$h, 20, 1/7)
+df$v3<- v(5, df$h, 20, 0.20)
+
+plot(df$v1, df$h, type = "l", col = "blue",
+     xlim = c(5, 8), ylim = c(20, 200),
+     xlab = "Wind speed (m/s)",
+     ylab = "Height (m)")
+lines(df$v2, df$h, type = "l", col = "green")
+lines(df$v3, df$h, type = "l", col = "red")
+legend("bottomright", 
+       legend = c(round(0.1, 2), round(1/7, 2), round(0.2, 2)), 
+       fill = c("blue", "green", "red"),
+       title = "Alpha shear")
+
+```
+  
+Usually we want to know wind profiles for 16 direction sectors, from 0 to 360 degrees. Additionally 
+average wind speed and direction in each sector, number of valid data etc.
+
+Typically, wind profiles are analyzed across 16 directional sectors to provide a full 360-degree characterization of the site. Key metrics for each sector include mean wind speeds, 
+meand directions and data availability (the count of valid observations).
+
+We will work with the data set from "Hansen, Kurt Schaldemose; Vasiljevic, Nikola; Sørensen, 
+Steen Arne (2021). Wind resource data from the tall Risø met mast. Technical University of Denmark. 
+Dataset. https://doi.org/10.11583/DTU.14153204.v1"
+
+The dataset consists of 10 minutes average of:
+
+- wind speeds at the heights of 44 m, 77 m, 125 m
+- wind directions at the heights of 77 m, 125 m
+- temperatures at the heiights of 3 m, 44 m and 118 m
+- pressure at the height P8
+
+```{r dataset}
+dplyr::glimpse(winddata)
+```
+
+## Step 2: Short introduction to Fortran
+
+## Step 3: Wind profile function in Fortran
+
+## Step 4: Is it all worth it? Benchmarking
+
+## Summary - where to go next
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

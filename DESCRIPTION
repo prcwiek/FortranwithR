@@ -18,7 +18,7 @@ Authors@R: c(
                    Dataset. https://doi.org/10.11583/DTU.14153204.v1") 
             )
 Maintainer: Pawel Cwiek <prc.altodato@gmail.com>
-Description: Simple calculations and plots for wind measurement data.
+Description: How to use Fortran with R.
 License: GPL (>= 3)
 Depends:
   R (>= 4.0),
