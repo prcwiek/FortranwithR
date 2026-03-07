@@ -1,0 +1,37 @@
+Package: FortranwithR
+Type: Package
+Title: Back to the future: How to use Fortran with R these days?
+Version: 0.0.1
+Authors@R: c(
+            person("Pawel", "Cwiek", , "prc.altodato@gmail.com", role = c("aut", "cre")),
+            person("Kurt Schaldemose", "Hansen", role = "ctb",
+                   comment = "Hansen, Kurt Schaldemose; Vasiljevic, Nikola; Sørensen, Steen Arne (2021). 
+            		   Wind resource data from the tall Risø met mast. Technical University of Denmark.
+            		   Dataset. https://doi.org/10.11583/DTU.14153204.v1"),
+            person("Nikola", "Vasiljevic", role = "ctb",
+                   comment = "Hansen, Kurt Schaldemose; Vasiljevic, Nikola; Sørensen, Steen Arne (2021). 
+                   Wind resource data from the tall Risø met mast. Technical University of Denmark.
+                   Dataset. https://doi.org/10.11583/DTU.14153204.v1"),
+            person("Steen Arne", "Sørensen", role = "ctb",
+                   comment = "Hansen, Kurt Schaldemose; Vasiljevic, Nikola; Sørensen, Steen Arne (2021). 
+                   Wind resource data from the tall Risø met mast. Technical University of Denmark.
+                   Dataset. https://doi.org/10.11583/DTU.14153204.v1") 
+            )
+Maintainer: Pawel Cwiek <prc.altodato@gmail.com>
+Description: Simple calculations and plots for wind measurement data.
+License: GPL (>= 3)
+Depends:
+  R (>= 4.0),
+  stats,
+  utils
+Imports:
+  dplyr
+Suggests: 
+  knitr,
+  rmarkdown,
+  testthat
+VignetteBuilder: knitr
+Encoding: UTF-8
+LazyData: true
+NeedsCompilation: yes
+RoxygenNote: 7.3.3

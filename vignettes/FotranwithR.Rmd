@@ -1,0 +1,99 @@
+---
+title: "Back to the future: How to use Fortran with R these days?"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{FortranwithR}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  markdown: 
+    wrap: 72
+  chunk_output_type: inline
+---
+
+```{r, label = "set options", include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  tidy = FALSE
+)
+```
+
+
+# Package FortranwithR
+
+FortranwithR is an R package for learning how use Fortran with R.
+
+During our walk through all steps will focus on several files with functon in R, one file in C, *fortranwithr_init.c*,  and one file in Fortran, *fortranwithr.f90* in the folder *src*.
+The *Makevars* file was prepared to work with the package and it can be easily tailored to other
+needs.
+
+## Step 0 or the starting point
+First, we will take a look at the template of our R package to get the first idea how the things work.  
+
+The first function in our package, *hello_user.R* is as simple as possible. We don't pass any arguments and we don't
+process the output.
+
+```{r 'First function', eval=FALSE}
+hello_user <- function() {
+
+  resp <- .C("hello_user_c")
+
+}
+```
+It calls the function written in C in which we register the function name later used in the Fortran code.
+Here it is *hello_user_c* with no arguments.  
+  
+extern void **hello_user_c()**  
+
+{**"hello_user_c"**, (DL_FUNC) &hello_user_c, **0**}  
+
+```{c, eval=FALSE}
+#include <R.h>
+#include <Rinternals.h>
+#include <R_ext/Rdynload.h>
+
+extern void hello_user_c();
+
+
+static const R_CMethodDef cMethods[] = {
+  {"hello_user_c", (DL_FUNC) &hello_user_c, 0},
+  {NULL, NULL, 0}
+};
+
+void R_init_FortranwithR(DllInfo *dll)
+{
+  R_registerRoutines(dll, cMethods, NULL, NULL, NULL);
+  R_useDynamicSymbols(dll, FALSE);
+}
+
+```
+
+Finally, we write the Fortran part. We will place all functions in the *module*.
+```{fortran, eval=FALSE}
+module fortranwithr
+
+  use, intrinsic  :: iso_c_binding
+
+  implicit none
+  private
+
+contains
+
+!**********************************************************
+!* Hello UseR!                                  *
+!**********************************************************
+  subroutine hello_user() bind(C, name = "hello_user_c")
+
+      !print *, "Hello UseR! 2026"
+
+  end subroutine hello_user
+
+end module fortranwithr
+
+```
+In fact the Fortran function does nothing now. We can uncomment the line print and try to build the package. It will work, but it will also generate warnings as creating the output is forbidden.
+
+
+
+
