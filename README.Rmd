@@ -31,7 +31,7 @@ Get the development version from github:
 
 ```{r eval=FALSE}
 # install.packages("devtools")
-devtools::install_github("prcwiek/FortranwithR")
+devtools::install_github("prcwiek/FortranwithR", build_vignettes = TRUE)
 ```
 
 ```{r}

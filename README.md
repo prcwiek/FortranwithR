@@ -13,13 +13,15 @@
 
 Back to the future: How to use Fortran with R these days?
 
+FortranwithR is an R package for learning how use Fortran with R.
+
 ### Installation
 
 Get the development version from github:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("prcwiek/FortranwithR")
+devtools::install_github("prcwiek/FortranwithR", build_vignettes = TRUE)
 ```
 
 ``` r
