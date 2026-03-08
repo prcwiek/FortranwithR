@@ -238,6 +238,179 @@ dplyr::glimpse(winddata)
 
 ## Step 2: Short introduction to Fortran
 
+### Fortran program structure
+
+```{fortran example_structure, eval=FALSE}
+program example_structure
+
+    implicit none
+  
+    integer     :: i
+  
+    i = 1
+    print *, i
+  
+end program example_structure
+```
+
+### Do loop
+```{fortran do_loop_example, eval=FALSE}
+program do_loop_example
+
+    implicit none
+  
+    integer     :: i
+  
+    do i=1, 10, 2
+        print *, i
+    end do
+  
+end program do_loop_example
+```
+
+### Arrays
+```{fortan arrays_example, eval=FALSE}
+program arrays_example
+
+    implicit none
+  
+    real        :: a(10)
+    integer     :: i
+  
+    do i = 20, 11, -1
+        a(i-10) = -i * 0.25
+    end do
+
+    do i= 1, 10
+        print *, i, a(i)
+    end do
+  
+end program arrays_example
+```
+
+
+### If
+```{fortran if_example, eval=FALSE}
+program if_example
+
+    implicit none
+
+    integer     :: i
+
+    do i = 1, 10
+        if (mod(i, 2) == 0) then
+            print *, "Even number: ", i
+        else 
+            print *, "Odd number:  ", i
+        end if
+    end do
+        
+end program if_example
+```
+
+### Subroutines
+```{fortran example_subroutine, eval=FALSE}
+program subroutine_example
+
+    implicit none
+
+    integer     :: i
+
+    do i = 1, 10
+        call example(i)
+    end do
+
+contains
+
+    subroutine example(n)
+
+        integer, intent(in)     :: n
+
+        if (mod(n, 2) == 0) then
+            print *, "Even number: ", n
+        else 
+            print *, "Odd number:  ", n
+        end if
+        
+    end subroutine example
+
+end program subroutine_example
+```
+
+## Functions
+```{fortran function_example, eval=FALSE}
+program function_example
+
+    implicit none
+
+    real    :: a
+
+    a =  my_sqrt(80.30)
+
+    print *, a
+
+contains
+
+    real function my_sqrt(a) result(res)
+
+        real, intent(in)    :: a
+
+        res = sqrt(a)
+    
+    end function my_sqrt
+
+end program function_example
+```
+
+### Modules
+```{fortran module_example, eval=FALSE}
+module my_module
+
+    implicit none
+
+contains
+
+    pure real function my_sqrt(a) result(res)
+
+        real, intent(in)    :: a
+
+        res = sqrt(a)
+    
+    end function my_sqrt
+
+    subroutine example(n)
+
+        integer, intent(in)     :: n
+
+        if (mod(n, 2) == 0) then
+            print *, "Even number: ", n
+        else 
+            print *, "Odd number:  ", n
+        end if
+        
+    end subroutine example
+
+end module my_module
+
+program module_example
+
+    use my_module, only: my_sqrt
+    
+    implicit none
+
+    real    :: a
+
+    a =  my_sqrt(80.30)
+
+    print *, a
+
+end program module_example
+```
+
+
+
+
+
 ## Step 3: Wind profile function in Fortran
 
 ## Step 4: Is it all worth it? Benchmarking
